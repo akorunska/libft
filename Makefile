@@ -6,17 +6,19 @@
 #    By: akorunsk <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/11/28 17:30:40 by akorunsk          #+#    #+#              #
-#    Updated: 2018/01/25 11:09:08 by akorunsk         ###   ########.fr        #
+#    Updated: 2018/01/25 12:39:32 by akorunsk         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = libft.a
 
-PRINTF_SRC_DIR := ./printf_src
+PRINTF_SRC_DIR = ./printf_src
 
-SRC =	$(shell find $(PRINTF_SRC_DIR) -type f -name "*.c")
+GNL_SRC_DIR = ./gnl_src
 
-INC = -I include/
+SRC =	$(shell find $(PRINTF_SRC_DIR) $(GNL_SRC_DIR) -type f -name "*.c")
+
+INC = -I printf_src/include/
 
 OBJ = $(SRC:.c=.o)
 
