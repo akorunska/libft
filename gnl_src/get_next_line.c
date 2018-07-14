@@ -6,7 +6,7 @@
 /*   By: akorunsk <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 10:41:23 by akorunsk          #+#    #+#             */
-/*   Updated: 2018/01/25 12:33:58 by akorunsk         ###   ########.fr       */
+/*   Updated: 2017/11/27 18:18:25 by akorunsk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ int			delete(t_remains **to_del)
 			d->prev->next = d->next;
 		if (d->next)
 			d->next->prev = d->prev;
+		if ((*to_del)->str)
+			free((*to_del)->str);
 		ft_memdel((void **)to_del);
 	}
 	return (0);
@@ -78,6 +80,8 @@ int			append(int read_q, char **line, char *buf, t_remains *prev)
 		*line = temp;
 		return (1);
 	}
+	if (prev->str)
+		free(prev->str);
 	prev->str = ft_strsub(buf, (pos + 1) - buf, ft_strchr(buf, '\0') - pos - 1);
 	*pos = '\0';
 	temp = ft_strjoin(*line, buf);
@@ -91,6 +95,8 @@ int			append(int read_q, char **line, char *buf, t_remains *prev)
 int			get_prev_line(char **line, t_remains **p, const int fd, char **buf)
 {
 	static	t_remains	*head;
+	char				*b;
+	int					rv;
 
 	*p = NULL;
 	*buf = NULL;
@@ -105,7 +111,12 @@ int			get_prev_line(char **line, t_remains **p, const int fd, char **buf)
 	if (!head)
 		head = *p;
 	if ((*p)->fd == fd && (*p)->str != NULL)
-		return (append((ft_strlen((*p)->str)), line, (*p)->str, *p));
+	{
+		b = ft_strdup((*p)->str);
+		rv = append((ft_strlen((*p)->str)), line, b, *p);
+		free(b);
+		return (rv);
+	}
 	else
 		return (1);
 }
@@ -124,17 +135,11 @@ int			get_next_line(const int fd, char **line)
 		if ((read_q = read(fd, buf, BUFF_SIZE)) <= 0)
 			break ;
 		initial = 0;
-		if (read_q < BUFF_SIZE && buf[read_q - 1] != '\n')
-		{
-			buf[read_q] = '\n';
-			buf[read_q + 1] = '\0';
-		}
-		else
-			buf[read_q] = '\0';
+		buf[read_q] = '\0';
 		read_q = append(read_q, line, buf, prev);
 	}
 	if (read_q == -1)
 		return (-1);
 	free(buf);
-	return ((read_q == 0 && initial) ? delete(&prev) : 1);
+	return ((read_q == 0 && initial) ? 0 : 1);
 }
