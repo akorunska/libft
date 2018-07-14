@@ -16,9 +16,12 @@ PRINTF_SRC_DIR = ./printf_src
 
 GNL_SRC_DIR = ./gnl_src
 
-SRC =	$(shell find $(PRINTF_SRC_DIR) $(GNL_SRC_DIR) -type f -name "*.c")
+LIB_SRC_DIR = ./libsrc
 
-INC = -I printf_src/include/
+SRC = $(shell find $(PRINTF_SRC_DIR) $(GNL_SRC_DIR) $(LIB_SRC_DIR) \
+												-type f -name "*.c")
+
+INC = -I printf_src/include/ -I ./
 
 OBJ = $(SRC:.c=.o)
 
@@ -32,29 +35,20 @@ all: $(NAME)
 
 obj: $(OBJ)
 
-$(NAME) : libmake $(OBJ)
-	cp $(LIBNAME) $(NAME)
-	ar r $(NAME) $(OBJ)
+$(NAME) : $(OBJ)
+	ar -rc $(NAME) $(OBJ)
+	ranlib $(NAME)
 
 %.o: %.c
 		gcc $(CFLAGS) $(INC) -o $@ $<
 
-clean: libfclean
+clean:
 		rm -rf $(OBJ)
 
-fclean: libfclean clean
+fclean:
 		rm -rf $(NAME)
 
 re: fclean all
 
 test:
 	gcc main.c libftprintf.a
-
-libmake:
-	@make -C libsrc/ all
-
-libclean:
-	@make -C libsrc/ clean
-
-libfclean:
-	@make -C libsrc/ fclean
